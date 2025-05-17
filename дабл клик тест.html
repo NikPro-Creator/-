@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таймер кликов с задержкой</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #111;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: #222;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            position: relative;
+            max-width: 90%;
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            color: #ddd;
+        }
+
+        .button {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            background: #333;
+            color: white;
+            border: 2px solid #444;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .button:hover {
+            background: #3a3a3a;
+            border-color: #555;
+        }
+
+        .message {
+            margin-top: 1.5rem;
+            padding: 0.8rem;
+            background: #ff444433;
+            border: 1px solid #ff4444;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .message.active {
+            display: block;
+            animation: fadeOut 1.5s forwards;
+        }
+
+        .timer {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9rem;
+            color: #888;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .timer.active {
+            opacity: 1;
+        }
+
+        .delay-info {
+            font-size: 0.8em;
+            color: #aaa;
+            margin-top: 0.5rem;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <div class="timer" id="timer">До сброса: 0,5s</div>
+        <h1>Тест дабл клик</h1>
+        <button class="button" id="clickButton">Кликните здесь</button>
+        <div class="message" id="message" role="alert">
+            Обнаружен двойной клик!
+            <div class="delay-info" id="delayInfo"></div>
+        </div>
+    </main>
+
+    <script>
+        let clickCount = 0;
+        let firstClickTime = 0;
+        let clickTimer = null;
+        const doubleClickInterval = 500;
+        const messageElement = document.getElementById('message');
+        const clickButton = document.getElementById('clickButton');
+        const timerElement = document.getElementById('timer');
+        const delayInfoElement = document.getElementById('delayInfo');
+
+        function updateTimer(time) {
+            timerElement.textContent = `До сброса: ${time.toFixed(1)}s`;
+        }
+
+        function startTimer() {
+            let startTime = Date.now();
+            timerElement.classList.add('active');
+            
+            const timer = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const remaining = (doubleClickInterval - elapsed) / 1000;
+                
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    timerElement.classList.remove('active');
+                    clickCount = 0;
+                    return;
+                }
+                
+                updateTimer(remaining);
+            }, 50);
+        }
+
+        clickButton.addEventListener('click', () => {
+            const currentTime = Date.now();
+            
+            if (clickCount === 0) {
+                firstClickTime = currentTime;
+            }
+
+            clickCount++;
+            
+            if (clickCount === 1) {
+                startTimer();
+                clickTimer = setTimeout(() => {
+                    clickCount = 0;
+                    timerElement.classList.remove('active');
+                }, doubleClickInterval);
+            } else if (clickCount === 2) {
+                const delay = currentTime - firstClickTime;
+                clearTimeout(clickTimer);
+                
+                // Обновляем информацию о задержке
+                delayInfoElement.textContent = `Задержка между кликами: ${delay}ms`;
+                
+                messageElement.classList.add('active');
+                timerElement.classList.remove('active');
+                clickCount = 0;
+                
+                setTimeout(() => {
+                    messageElement.classList.remove('active');
+                }, 1500);
+            }
+        });
+    </script>
+</body>
+</html>
