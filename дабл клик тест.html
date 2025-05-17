@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Таймер кликов с задержкой</title>
+    <title>Детектор двойного клика</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -62,21 +62,6 @@
             animation: fadeOut 1.5s forwards;
         }
 
-        .timer {
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.9rem;
-            color: #888;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .timer.active {
-            opacity: 1;
-        }
-
         .delay-info {
             font-size: 0.8em;
             color: #aaa;
@@ -92,8 +77,7 @@
 </head>
 <body>
     <main class="container">
-        <div class="timer" id="timer">До сброса: 0,3s</div>
-        <h1>Тест дабл клик</h1>
+        <h1>Тест двойного клика</h1>
         <button class="button" id="clickButton">Кликните здесь</button>
         <div class="message" id="message" role="alert">
             Обнаружен двойной клик!
@@ -105,34 +89,10 @@
         let clickCount = 0;
         let firstClickTime = 0;
         let clickTimer = null;
-        const doubleClickInterval = 300;
+        const doubleClickInterval = 100;
         const messageElement = document.getElementById('message');
         const clickButton = document.getElementById('clickButton');
-        const timerElement = document.getElementById('timer');
         const delayInfoElement = document.getElementById('delayInfo');
-
-        function updateTimer(time) {
-            timerElement.textContent = `До сброса: ${time.toFixed(1)}s`;
-        }
-
-        function startTimer() {
-            let startTime = Date.now();
-            timerElement.classList.add('active');
-            
-            const timer = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const remaining = (doubleClickInterval - elapsed) / 1000;
-                
-                if (remaining <= 0) {
-                    clearInterval(timer);
-                    timerElement.classList.remove('active');
-                    clickCount = 0;
-                    return;
-                }
-                
-                updateTimer(remaining);
-            }, 50);
-        }
 
         clickButton.addEventListener('click', () => {
             const currentTime = Date.now();
@@ -144,20 +104,16 @@
             clickCount++;
             
             if (clickCount === 1) {
-                startTimer();
                 clickTimer = setTimeout(() => {
                     clickCount = 0;
-                    timerElement.classList.remove('active');
                 }, doubleClickInterval);
             } else if (clickCount === 2) {
                 const delay = currentTime - firstClickTime;
                 clearTimeout(clickTimer);
                 
-                // Обновляем информацию о задержке
                 delayInfoElement.textContent = `Задержка между кликами: ${delay}ms`;
                 
                 messageElement.classList.add('active');
-                timerElement.classList.remove('active');
                 clickCount = 0;
                 
                 setTimeout(() => {
