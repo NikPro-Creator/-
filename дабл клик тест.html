@@ -92,7 +92,7 @@
 </head>
 <body>
     <main class="container">
-        <div class="timer" id="timer">До сброса: 0,5s</div>
+        <div class="timer" id="timer">До сброса: 0,3s</div>
         <h1>Тест дабл клик</h1>
         <button class="button" id="clickButton">Кликните здесь</button>
         <div class="message" id="message" role="alert">
@@ -105,7 +105,7 @@
         let clickCount = 0;
         let firstClickTime = 0;
         let clickTimer = null;
-        const doubleClickInterval = 500;
+        const doubleClickInterval = 300;
         const messageElement = document.getElementById('message');
         const clickButton = document.getElementById('clickButton');
         const timerElement = document.getElementById('timer');
